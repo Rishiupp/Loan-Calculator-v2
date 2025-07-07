@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loan Comparison Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 15px;
+  color: #333;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* Touch-friendly improvements */
+input, button {
+  touch-action: manipulation;
+}
+
+/* Prevent zoom on iOS */
+input[type="number"] {
+  font-size: 16px;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #1b3a6b;
+  font-size: 2rem;
+  margin: 0 0 25px 0;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Container and Layout */
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  padding: 25px;
+}
+
+/* Input Row Styling */
+.input-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  background: linear-gradient(135deg, #eaf4ff 0%, #f0f8ff 100%);
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #c8deff;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #1b3a6b;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.input-group input {
+  padding: 12px 15px;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1b3a6b;
+  box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Loan Comparison Container */
+.loan-comparison-container {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Button Styling */
+.button {
+  background: linear-gradient(135deg, #1b3a6b 0%, #2c5aa0 100%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(27, 58, 107, 0.2);
+  text-decoration: none;
+  display: inline-block;
+  min-width: 140px;
+  text-align: center;
+}
+
+.button:hover {
+  background: linear-gradient(135deg, #1b007d 0%, #3d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(27, 58, 107, 0.3);
+}
+
+.button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(27, 58, 107, 0.2);
+}
+
+.button.secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
+}
+
+.button.secondary:hover {
+  background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+  box-shadow: 0 6px 16px rgba(108, 117, 125, 0.3);
+}
+
+/* Buttons Section */
+.buttons-section {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.main-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.apply-button-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.apply-button {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  text-decoration: none;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.apply-button:hover {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.red {
+  color: #dc3545;
+}
+
+#afterCalc {
+  margin-bottom: 25px;
+}
+
+.summary-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 15px;
+}
+
+.loan-comparison {
+  flex: 1;
+  min-width: 280px;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.savings-summary {
+  flex: 1;
+  min-width: 240px;
+  background: linear-gradient(135deg, #e6f9f0 0%, #f0fdf4 100%);
+  padding: 18px;
+  border-left: 4px solid #2ecc71;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 100, 50, 0.1);
+  color: #1e5631;
+}
+
+.savings-summary .highlight {
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.highlight {
+  color: #004a99;
+  font-weight: bold;
+}
+
+#loanAmountText, #ourLoanTotal, #otherLoanTotal, #otherInterestPaid, #ourInterestPaid {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* Interest Rate Boxes */
+.interest-tenure-box {
+  flex: 1;
+  max-width: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interest-tenure-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.loan-box {
+  background: linear-gradient(135deg, #1b3a6b 0%, #2c5aa0 100%);
+  color: #fff;
+  padding: 18px;
+  font-weight: bold;
+  font-size: 16px;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.loan-details {
+  padding: 20px;
+  color: #1b3a6b;
+}
+
+.loan-details label {
+  display: block;
+  font-weight: 600;
+  color: #1b3a6b;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.loan-details input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+  margin-bottom: 15px;
+}
+
+.loan-details input:focus {
+  outline: none;
+  border-color: #1b3a6b;
+  box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.15);
+  transform: translateY(-1px);
+}
+
+.rate, .term {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+#addMonthButton {
+  display: none;
+}
+
+#pdfGenButton {
+    display: none;
+}
+
+.tenureFinal {
+  font-size: 18px;
+  color: #1b3a6b;
+  font-weight: bold;
+}
+
+.loanTerm {
+  padding: 8px 0;
+  display: none;
+}
+
+.ip {
+  width: 100% !important;
+}
+
+.ip-small {
+  width: 100% !important;
+}
+
+.savings-banner {
+  margin: 20px;
+  background: linear-gradient(135deg, #0c3a8c 0%, #1e40af 100%);
+  color: white;
+  padding: 20px 25px;
+  border-radius: 12px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  font-size: 24px;
+  line-height: 1.4;
+  display: none;
+  box-shadow: 0 4px 12px rgba(12, 58, 140, 0.3);
+}
+
+.savings-banner strong {
+  font-size: 36px;
+  font-weight: 700;
+  display: inline-block;
+  margin: 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.percentSavingOnInterest, .percentSavingOnTotalAmountPaid {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.omozing-box {
+  background: linear-gradient(135deg, #215c9c 0%, #3b82f6 100%);
+}
+
+#pdf-content {
+    display: none;
+    background: #fff;
+    padding: 30px;
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+#pdf-content h1 {
+    color: #1b3a6b;
+    border-bottom: 3px solid #1b3a6b;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-size: 28px;
+}
+
+#pdf-content .pdf-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #eaf4ff 0%, #f0f8ff 100%);
+    border-radius: 8px;
+}
+
+#pdf-content .pdf-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-left: 4px solid #1b3a6b;
+    background: #f8f9fa;
+}
+
+#pdf-content .pdf-highlight {
+    background: #e6f9f0;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+    border-left: 4px solid #2ecc71;
+}
+
+/* Toast Notification Styles */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  min-width: 300px;
+  max-width: 400px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #28a745 0%, #2ecc71 100%);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.toast.info {
+  background: linear-gradient(135deg, #17a2b8 0%, #3498db 100%);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 15px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .wrapper {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .input-row {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  /* Mobile: Keep loan comparison boxes side by side but make them very small */
+  .loan-comparison-container {
+    flex-direction: row !important;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .interest-tenure-box {
+    flex: 1;
+    max-width: 48%;
+  }
+
+  .loan-box {
+    padding: 10px 8px;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .loan-details {
+    padding: 12px 8px;
+  }
+
+  .loan-details label {
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+
+  .loan-details input {
+    padding: 8px 6px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .main-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .button {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .apply-button {
+    width: 100%;
+    max-width: 280px;
+    padding: 12px 30px;
+    font-size: 16px;
+  }
+
+  .savings-banner {
+    margin: 15px 0;
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  .savings-banner strong {
+    font-size: 28px;
+  }
+
+  .percentSavingOnInterest, .percentSavingOnTotalAmountPaid {
+    font-size: 24px;
+  }
+
+  .toast-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .toast {
+    min-width: auto;
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+
+  .wrapper {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+  }
+
+  .input-row {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .input-group input {
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  /* Extra small mobile: make loan boxes even more compact */
+  .loan-comparison-container {
+    gap: 8px;
+  }
+
+  .interest-tenure-box {
+    max-width: 48%;
+  }
+
+  .loan-box {
+    padding: 8px 6px;
+    font-size: 10px;
+  }
+
+  .loan-details {
+    padding: 10px 6px;
+  }
+
+  .loan-details label {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .loan-details input {
+    padding: 6px 8px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .button {
+    padding: 12px 20px;
+    font-size: 14px;
+    min-width: 120px;
+  }
+
+  .apply-button {
+    padding: 12px 25px;
+    font-size: 15px;
+  }
+
+  .savings-banner {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .savings-banner strong {
+    font-size: 24px;
+  }
+
+  .percentSavingOnInterest, .percentSavingOnTotalAmountPaid {
+    font-size: 20px;
+  }
+
+  .toast {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Special Mobile Layout - Keep side by side even on small screens */
+@media (max-width: 480px) {
+  .input-row {
+    flex-direction: row !important; /* Keep side by side on mobile */
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .input-group {
+    flex: 1;
+  }
+
+  .input-group label {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  .input-group input {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="wrapper">
+        <h1>Loan Calculation</h1>
+        
+        <!-- Principal Amount and Tenure Row -->
+        <div class="input-row">
+            <div class="input-group">
+                <label>Loan Amount (in Rs.)</label>
+                <input class="rate ip" type="text" id="principal" name="principal" required placeholder="Enter amount" inputmode="numeric" />
+            </div>
+            <div class="input-group">
+                <label>Loan Tenure (in months)</label>
+                <input class="rate ip-small" type="number" id="tenure" max="72" min="1" name="tenure" required placeholder="Enter months" />
+            </div>
+        </div>
+
+        <!-- Loan Comparison Row -->
+        <div class="loan-comparison-container">
+            <div class="interest-tenure-box">
+                <div class="loan-box">PAYDAY LOAN</div>
+                <div class="loan-details">
+                    <label>Interest Rate (monthly %)</label>
+                    <input class="rate ip-small" id="paydayRate" placeholder="Enter rate"/>
+                    <div class="loanTerm">
+                        <span>Loan Term</span><br>
+                        <span class="tenureFinal"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interest-tenure-box">
+                <div class="loan-box omozing-box">OMOZING LOAN</div>
+                <div class="loan-details">
+                    <label>Interest Rate (monthly %)</label>
+                    <input class="rate ip-small" id="omozingRate" placeholder="Enter rate" />
+                    <div class="loanTerm">
+                        <span>Loan Term</span><br>
+                        <span class="tenureFinal"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section - Only shows after calculation -->
+        <div id="afterCalc" style="display: none;">
+            <div class="savings-banner">
+                <span>With Omozing, You Save</span><br />
+                <strong class="amountSaved">₹ 10000</strong><br>
+                <span class="small-save-info">That's <span class="percentSavingOnInterest">90</span>% saved on interest and <span class="percentSavingOnTotalAmountPaid">70</span>% on total repayment.</span>
+            </div>
+        </div>
+
+        <!-- Buttons Section - Always visible -->
+        <div class="buttons-section" style="display: block !important; visibility: visible !important;">
+            <div class="main-buttons" style="display: flex !important; visibility: visible !important;">
+                <button class="button" type="button" onclick="calculateEMI()">Calculate</button>
+                <button class="button secondary" id="addMonthButton" onclick="addAMonth()" style="display: inline-block !important; visibility: visible !important;">Add a month</button>
+                <button class="button secondary" id="pdfGenButton" onclick="generatePDF()" style="display: inline-block !important; visibility: visible !important;">Download PDF</button>
+            </div>
+            <div class="apply-button-wrapper" style="display: flex !important; visibility: visible !important;">
+                <a href="https://www.omozing.com/loan-appln/" class="apply-button">Apply for Loan</a>
+            </div>
+        </div>
+
+        
+
+        <!-- Hidden PDF Content for Generation -->
+        <div id="pdf-content" style="display: none;">
+            <div class="pdf-header">
+                <h1>Loan Comparison Summary</h1>
+                <!-- <p style="font-size: 16px; color: #666; margin: 0;">Professional Loan Analysis Report</p> -->
+            </div>
+            
+            <div class="pdf-section">
+                <h3 style="color: #1b3a6b; margin-bottom: 10px;">Loan Details</h3>
+                <p><strong>Principal Amount:</strong> <span id="pdfPrincipal"></span></p>
+                <p><strong>Loan Tenure:</strong> <span id="pdfTenure"></span></p>
+                <p><strong>Payday Loan Rate:</strong> <span id="pdfPaydayRate"></span>% per month</p>
+                <p><strong>Omozing Loan Rate:</strong> <span id="pdfOmozingRate"></span>% per month</p>
+            </div>
+            
+            <div class="pdf-highlight">
+                <h3 style="color: #27ae60; margin-bottom: 15px;">💰 Your Savings with Omozing</h3>
+                <p style="font-size: 20px; margin: 10px 0;"><strong>Total Amount Saved: <span id="pdfAmountSaved"></span></strong></p>
+                <p style="margin: 8px 0;">Interest Savings: <span id="pdfInterestSaving"></span>%</p>
+                <p style="margin: 8px 0;">Total Repayment Savings: <span id="pdfTotalSaving"></span>%</p>
+            </div>
+            
+            <div class="pdf-section">
+                <h3 style="color: #1b3a6b; margin-bottom: 10px;">Interest Comparison</h3>
+                <p><strong>Payday Loan Interest:</strong> <span id="pdfPaydayInterest"></span></p>
+                <p><strong>Omozing Loan Interest:</strong> <span id="pdfOmozingInterest"></span></p>
+                <p style="color: #27ae60;"><strong>Interest Saved:</strong> <span id="pdfInterestSaved"></span></p>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 15px;">
+                <p>Generated on: <span id="pdfDate"></span></p>
+                <p>Powered by Omozing Loan Services</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+<script>
+    // Simple-interest based interest comparison calculator (with console logs for inputs)
+
+// Toast notification system
+function showToast(message, type = 'error', duration = 5000) {
+  const toastContainer = document.getElementById('toastContainer');
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const messageSpan = document.createElement('span');
+  messageSpan.textContent = message;
+  
+  const closeButton = document.createElement('button');
+  closeButton.className = 'toast-close';
+  closeButton.innerHTML = '×';
+  closeButton.onclick = () => removeToast(toast);
+  
+  toast.appendChild(messageSpan);
+  toast.appendChild(closeButton);
+  
+  toastContainer.appendChild(toast);
+  
+  // Auto remove after duration
+  setTimeout(() => removeToast(toast), duration);
+}
+
+function removeToast(toast) {
+  if (toast && toast.parentNode) {
+    toast.style.animation = 'slideOut 0.3s ease-in';
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 300);
+  }
+}
+
+// Indian number formatting function
+function formatIndianNumber(num) {
+  if (isNaN(num)) return num;
+  
+  const numStr = Math.round(num).toString();
+  const lastThree = numStr.substring(numStr.length - 3);
+  const otherNumbers = numStr.substring(0, numStr.length - 3);
+  
+  if (otherNumbers !== '') {
+    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + "," + lastThree;
+  } else {
+    return lastThree;
+  }
+}
+
+// Format currency with Indian number system
+function formatCurrency(amount) {
+  return "₹ " + formatIndianNumber(amount);
+}
+
+function get(el) {
+  return document.getElementById(el);
+}
+
+function getC(el) {
+  return document.getElementsByClassName(el)[0];
+}
+
+// Real-time validation functions
+function validatePrincipal() {
+  const cleanValue = getCleanNumber(get('principal').value);
+  const principal = parseFloat(cleanValue);
+  if (get('principal').value && (isNaN(principal) || principal < 10000 || principal > 10000000)) {
+    showToast("Please enter a principal amount between ₹10,000 and ₹1,00,00,000", 'error', 3000);
+    return false;
+  }
+  return true;
+}
+
+function validateTenure() {
+  const tenure = parseInt(get('tenure').value, 10);
+  if (get('tenure').value && (isNaN(tenure) || tenure < 1 || tenure > 72)) {
+    showToast("Please enter a loan tenure between 1 and 72 months", 'error', 3000);
+    return false;
+  }
+  return true;
+}
+
+function validateOmozingRate() {
+  const omozingRateInput = parseFloat(get('omozingRate').value);
+  if (get('omozingRate').value && (isNaN(omozingRateInput) || omozingRateInput <= 0 || omozingRateInput > 10)) {
+    showToast("Please enter Omozing interest rate (monthly %) between 0.1 and 10", 'error', 3000);
+    return false;
+  }
+  return true;
+}
+
+function validatePaydayRate() {
+  const paydayRateInput = parseFloat(get('paydayRate').value);
+  if (get('paydayRate').value && (isNaN(paydayRateInput) || paydayRateInput <= 0 || paydayRateInput > 50)) {
+    showToast("Please enter Payday interest rate (monthly %) between 1 and 50", 'error', 3000);
+    return false;
+  }
+  return true;
+}
+
+function validateRateComparison() {
+  const omozingRateInput = parseFloat(get('omozingRate').value);
+  const paydayRateInput = parseFloat(get('paydayRate').value);
+  if (get('omozingRate').value && get('paydayRate').value && omozingRateInput >= paydayRateInput) {
+    showToast("Omozing rate must be less than the Payday rate.", 'error', 3000);
+    return false;
+  }
+  return true;
+}
+
+function calculateEMI() {
+  // Check if any field is empty first
+  const principalValue = get('principal').value.trim();
+  const omozingRateValue = get('omozingRate').value.trim();
+  const paydayRateValue = get('paydayRate').value.trim();
+  const tenureValue = get('tenure').value.trim();
+
+  if (!principalValue || !omozingRateValue || !paydayRateValue || !tenureValue) {
+    showToast("Please fill all required fields before calculating", 'error', 4000);
+    return;
+  }
+
+  // Read inputs - clean the principal value to remove commas
+  const principal = parseFloat(getCleanNumber(principalValue));
+  const omozingRateInput = parseFloat(omozingRateValue);
+  const paydayRateInput = parseFloat(paydayRateValue);
+  const tenure = parseInt(tenureValue, 10);
+
+  // Log input values for debugging
+  console.log('Input principal:', principal);
+  console.log('Input Omozing rate (% per month):', omozingRateInput);
+  console.log('Input Payday rate (% per month):', paydayRateInput);
+  console.log('Input tenure (months):', tenure);
+
+  // Validate all inputs
+  if (!validatePrincipal() || !validateTenure() || !validateOmozingRate() || !validatePaydayRate() || !validateRateComparison()) {
+    return;
+  }
+
+  // Convert to decimals
+  const omozingRate = omozingRateInput / 100;
+  const paydayRate = paydayRateInput / 100;
+
+  // Simple interest calculations
+  const interestOmozing = principal * omozingRate * tenure;            // e.g. 0.02*100000*24
+  const interestPayday = principal * paydayRate * tenure;              // e.g. 0.30*100000*24
+
+  // Interest saved
+  const interestSaved = interestPayday - interestOmozing;
+
+  console.log("Total saved: ",interestSaved)
+
+  // Total saving includes principal + interest difference
+  const totalSaved = principal + interestSaved;
+  const displaySaved=interestSaved;
+  // Percentage savings
+  const percentSavingOnInterest = (interestSaved / interestPayday) * 100;
+  const percentSavingOnTotal = (totalSaved / (principal + interestPayday)) * 100;
+
+  // Display results with Indian number formatting
+  getC('amountSaved').textContent = formatCurrency(displaySaved);
+  getC('percentSavingOnInterest').textContent = percentSavingOnInterest.toFixed(1);
+  getC('percentSavingOnTotalAmountPaid').textContent = percentSavingOnTotal.toFixed(1);
+  getC('savings-banner').style.display = 'block';
+
+  // Update tenure labels (these are now in the main form, not in afterCalc)
+  const labels = document.getElementsByClassName('tenureFinal');
+  for (let lbl of labels) {
+    lbl.textContent = tenure + ' months';
+  }
+
+  // Show results section
+  get('afterCalc').style.display = 'block';
+
+  // Update PDF content with formatted numbers
+  updatePDFContent(principal, tenure, paydayRateInput, omozingRateInput, 
+                  displaySaved, percentSavingOnInterest, percentSavingOnTotal,
+                  interestPayday, interestOmozing, interestSaved);
+
+  // Show success toast
+  showToast("Calculation completed successfully!", 'success', 3000);
+}
+
+function updatePDFContent(principal, tenure, paydayRate, omozingRate, 
+                         displaySaved, interestSaving, totalSaving,
+                         paydayInterest, omozingInterest, interestSaved) {
+  get('pdfPrincipal').textContent = formatCurrency(principal);
+  get('pdfTenure').textContent = tenure + ' months';
+  get('pdfPaydayRate').textContent = paydayRate;
+  get('pdfOmozingRate').textContent = omozingRate;
+  get('pdfAmountSaved').textContent = formatCurrency(displaySaved);
+  get('pdfInterestSaving').textContent = interestSaving.toFixed(1);
+  get('pdfTotalSaving').textContent = totalSaving.toFixed(1);
+  get('pdfPaydayInterest').textContent = formatCurrency(paydayInterest);
+  get('pdfOmozingInterest').textContent = formatCurrency(omozingInterest);
+  get('pdfInterestSaved').textContent = formatCurrency(interestSaved);
+  get('pdfDate').textContent = new Date().toLocaleDateString('en-IN');
+}
+
+function addAMonth() {
+  get('tenure').value = parseInt(get('tenure').value, 10) + 1;
+  calculateEMI();
+}
+
+function generatePDF() {
+  const element = document.getElementById('pdf-content');
+  element.style.display = 'block';
+  const opt = {
+    margin: 0.5,
+    filename: 'loan-comparison-summary.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollY: 0, windowWidth: document.documentElement.scrollWidth, windowHeight: document.documentElement.scrollHeight },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+  html2pdf().set(opt).from(element).save().then(() => {
+    console.log('PDF generated');
+    showToast("PDF downloaded successfully!", 'success', 3000);
+    element.style.display = 'none';
+  });
+}
+
+// Format number with Indian comma system
+function formatNumberInput(value) {
+  // Remove existing commas and non-numeric characters except dots
+  const cleanValue = value.replace(/[^\d]/g, '');
+  if (!cleanValue) return '';
+  
+  // Apply Indian number formatting
+  return formatIndianNumber(parseInt(cleanValue));
+}
+
+// Remove commas and return clean number for calculations
+function getCleanNumber(value) {
+  return value.replace(/[^\d]/g, '');
+}
+
+// Add event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners for validation only on blur (field exit)
+  get('principal').addEventListener('blur', validatePrincipal);
+  get('tenure').addEventListener('blur', validateTenure);
+  
+  get('omozingRate').addEventListener('blur', function() {
+    validateOmozingRate();
+    validateRateComparison();
+  });
+  
+  get('paydayRate').addEventListener('blur', function() {
+    validatePaydayRate();
+    validateRateComparison();
+  });
+
+  // Add comma formatting to principal amount field
+  get('principal').addEventListener('input', function() {
+    const cursorPosition = this.selectionStart;
+    const oldValue = this.value;
+    const cleanValue = getCleanNumber(this.value);
+    
+    if (cleanValue) {
+      const formattedValue = formatNumberInput(this.value);
+      this.value = formattedValue;
+      
+      // Adjust cursor position after formatting
+      const diff = formattedValue.length - oldValue.length;
+      this.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+    }
+  });
+
+  // Handle paste events for principal field
+  get('principal').addEventListener('paste', function(e) {
+    e.preventDefault();
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    const cleanValue = getCleanNumber(pastedText);
+    if (cleanValue) {
+      this.value = formatNumberInput(cleanValue);
+    }
+  });
+});
+</script>
+</html>
